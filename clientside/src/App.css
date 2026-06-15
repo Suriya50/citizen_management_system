@@ -1,0 +1,342 @@
+/* ============================================ */
+/* MOBILE RESPONSIVE ADDITIONS - VILLAGE SYSTEM */
+/* ============================================ */
+
+/* Base mobile improvements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Better touch targets for all interactive elements */
+button, 
+input, 
+select,
+textarea,
+a,
+[role="button"],
+.cursor-pointer {
+  touch-action: manipulation;
+}
+
+/* ========== MOBILE STYLES (max-width: 640px) ========== */
+@media (max-width: 640px) {
+  /* Prevent horizontal scroll */
+  body, html {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* All containers full width */
+  .container, 
+  .w-full,
+  main,
+  .main-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Better padding for main content */
+  main.p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  /* Dashboard cards - fix grid */
+  .grid.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Dashboard stat cards better sizing */
+  .bg-white.rounded-lg.shadow.p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  .bg-white.rounded-lg.shadow.p-4 .text-2xl {
+    font-size: 1.25rem !important;
+  }
+  
+  .bg-white.rounded-lg.shadow.p-4 .text-xs {
+    font-size: 0.65rem !important;
+  }
+  
+  /* Form grid - stack columns */
+  .grid-cols-1.md\:grid-cols-2 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  .grid-cols-2.gap-4,
+  .grid.grid-cols-2.gap-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Keep grid only for specific cases on mobile */
+  .grid-cols-2.gap-3 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Fix for schemes grid */
+  .grid-cols-1.md\:grid-cols-2.gap-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* All inputs full width and better size */
+  input, select, button, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px !important; /* Prevents iOS zoom */
+  }
+  
+  /* Better form spacing */
+  .space-y-3 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  .space-y-4 > * + * {
+    margin-top: 0.875rem;
+  }
+  
+  /* Card padding */
+  .bg-white.rounded-lg.shadow {
+    padding: 0.875rem !important;
+  }
+  
+  /* Better text sizes */
+  h1.text-xl {
+    font-size: 1.125rem !important;
+  }
+  
+  h2.text-lg, h2.text-md {
+    font-size: 1rem !important;
+  }
+  
+  .text-sm {
+    font-size: 0.75rem !important;
+  }
+  
+  .text-xs {
+    font-size: 0.7rem !important;
+  }
+  
+  /* Button sizing */
+  button, .button {
+    min-height: 40px;
+    padding: 0.5rem 0.875rem !important;
+  }
+  
+  /* Fix icon positioning */
+  .relative svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  /* Modal responsive */
+  .fixed.inset-0 .bg-white.rounded-lg {
+    margin: 1rem !important;
+    width: calc(100% - 2rem) !important;
+    max-width: none !important;
+  }
+  
+  /* Search results */
+  .max-w-4xl.mx-auto {
+    padding: 0 0.5rem;
+  }
+  
+  /* Member card in search results */
+  .bg-white.rounded-lg.shadow.p-4 .flex.gap-4 {
+    gap: 0.75rem !important;
+  }
+  
+  .w-12.h-12 {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .text-lg.font-bold {
+    font-size: 0.95rem !important;
+  }
+  
+  /* Navbar improvements */
+  nav .px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  nav .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Search input in navbar */
+  input[type="text"]::placeholder {
+    font-size: 11px !important;
+  }
+  
+  /* Sidebar touch targets */
+  .fixed.left-0 nav a,
+  .fixed.left-0 nav button {
+    padding: 0.875rem 1rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  /* Tab buttons */
+  .flex.gap-3.border-b {
+    gap: 0.5rem !important;
+  }
+  
+  .flex.gap-3.border-b button {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.7rem !important;
+  }
+  
+  /* Report cards */
+  .grid-cols-2.md\:grid-cols-4.gap-4 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Scheme cards */
+  .grid-cols-1.md\:grid-cols-2.gap-4 > div {
+    margin-bottom: 0;
+  }
+  
+  /* Fix absolute positioned icons */
+  .relative .absolute {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  /* Better margins */
+  .mb-4 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .mb-5 {
+    margin-bottom: 0.875rem !important;
+  }
+  
+  .mt-4 {
+    margin-top: 0.75rem !important;
+  }
+  
+  /* Dashboard action buttons */
+  .grid.grid-cols-2.md\:grid-cols-4.gap-4 a {
+    padding: 0.75rem 0.5rem !important;
+  }
+  
+  .grid.grid-cols-2.md\:grid-cols-4.gap-4 a svg {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Login/Register pages */
+  .max-w-xs, .max-w-md {
+    margin: 0 0.75rem;
+    width: calc(100% - 1.5rem);
+  }
+  
+  /* Fix overflow issues */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide some text on very small screens */
+  .hidden.sm\\:inline {
+    display: none !important;
+  }
+  
+  /* Better spacing in forms */
+  .bg-white.rounded-lg.shadow.p-6 {
+    padding: 1rem !important;
+  }
+  
+  /* Scheme modal */
+  .fixed.inset-0.bg-black.bg-opacity-50 .bg-white {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* ========== TABLET STYLES (641px - 768px) ========== */
+@media (min-width: 641px) and (max-width: 768px) {
+  .grid-cols-2 {
+    gap: 0.875rem;
+  }
+  
+  .px-3 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  main.p-4 {
+    padding: 1rem;
+  }
+  
+  .text-xl {
+    font-size: 1.25rem;
+  }
+}
+
+/* ========== LARGER MOBILE (max-width: 480px) ========== */
+@media (max-width: 480px) {
+  /* Dashboard 2-column becomes 1-column on very small */
+  .grid.grid-cols-2:not(.md\\:grid-cols-4) {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Demographic cards */
+  .grid.grid-cols-2.md\:grid-cols-4.gap-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Smaller fonts */
+  .text-2xl {
+    font-size: 1.1rem !important;
+  }
+  
+  /* Reduce card padding */
+  .bg-white.rounded-lg.shadow.p-4 {
+    padding: 0.6rem !important;
+  }
+}
+
+/* ========== UTILITY CLASSES ========== */
+/* Hide scrollbar on mobile but keep functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prevent zoom on input focus */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
