@@ -12,6 +12,7 @@ const app = express();
 // ✅ CORS - Allow both local and production
 // ============================================
 const allowedOrigins = [
+  // Local development
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:3002',
@@ -22,10 +23,17 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:5500',
   'http://localhost:8080',
-  // Add your Render frontend URL after deployment
+  // Backend URLs
+  'https://citizen-management-systems.onrender.com',
   'https://citizen-management-frontend.onrender.com',
   'https://village-citizen-frontend.onrender.com',
-  'https://citizen-management-systems.onrender.com'
+  // Vercel Frontend URLs (ADD THESE)
+  'https://village-frontend.vercel.app',
+  'https://village-citizen.vercel.app',
+  // Allow all Vercel preview deployments (dynamic URLs)
+  /\.vercel\.app$/,
+  // Allow all Render URLs
+  /\.onrender\.com$/
 ];
 
 app.use(cors({
@@ -33,7 +41,25 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+    // Check if origin matches any allowed origin
+    let isAllowed = false;
+    
+    // Check exact matches
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      isAllowed = true;
+    }
+    
+    // Check regex patterns
+    if (!isAllowed) {
+      for (let allowed of allowedOrigins) {
+        if (allowed instanceof RegExp && allowed.test(origin)) {
+          isAllowed = true;
+          break;
+        }
+      }
+    }
+    
+    if (isAllowed || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
       console.warn(`⚠️ CORS blocked request from origin: ${origin}`);
@@ -55,6 +81,7 @@ app.use(morgan('dev'));
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`📡 ${req.method} ${req.url}`);
+  console.log(`📍 Origin: ${req.headers.origin || 'unknown'}`);
   next();
 });
 
