@@ -19,6 +19,7 @@ const allowedOrigins = [
   'http://localhost:3003',
   'http://localhost:3004',
   'http://localhost:5000',
+  'http://localhost:5001',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5500',
@@ -27,7 +28,8 @@ const allowedOrigins = [
   'https://citizen-management-systems.onrender.com',
   'https://citizen-management-frontend.onrender.com',
   'https://village-citizen-frontend.onrender.com',
-  // Vercel Frontend URLs (ADD THESE)
+  // Vercel Frontend URLs
+  'https://citizen-management-system-qzw3.vercel.app',
   'https://village-frontend.vercel.app',
   'https://village-citizen.vercel.app',
   // Allow all Vercel preview deployments (dynamic URLs)
@@ -166,12 +168,14 @@ app.use('*', (req, res) => {
       '/',
       '/health',
       '/api/health',
-      '/api/auth/*',
-      '/api/families/*',
-      '/api/members/*',
-      '/api/schemes/*',
-      '/api/reports/*',
-      '/api/dashboard/*'
+      '/api/auth',
+      '/api/auth/register',
+      '/api/auth/login',
+      '/api/families',
+      '/api/members',
+      '/api/schemes',
+      '/api/reports',
+      '/api/dashboard'
     ]
   });
 });
