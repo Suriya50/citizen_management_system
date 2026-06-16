@@ -32,6 +32,7 @@ const allowedOrigins = [
   'https://citizen-management-system-qzw3.vercel.app',
   'https://village-frontend.vercel.app',
   'https://village-citizen.vercel.app',
+  'https://citizen-management-system-dss.vercel.app',  // ← ADD YOUR VERCEL URL
   // Allow all Vercel preview deployments (dynamic URLs)
   /\.vercel\.app$/,
   // Allow all Render URLs
@@ -70,7 +71,8 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  // ✅ FIX: Add 'x-village-id' to allowed headers
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-village-id']
 }));
 
 // ============================================
@@ -84,6 +86,7 @@ app.use(morgan('dev'));
 app.use((req, res, next) => {
   console.log(`📡 ${req.method} ${req.url}`);
   console.log(`📍 Origin: ${req.headers.origin || 'unknown'}`);
+  console.log(`📍 Village ID: ${req.headers['x-village-id'] || 'not sent'}`);
   next();
 });
 
