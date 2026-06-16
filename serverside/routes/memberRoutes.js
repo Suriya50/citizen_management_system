@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 const {
   addMember,
   getFamilyMembers,
@@ -11,15 +11,13 @@ const {
   searchMembers
 } = require('../controllers/memberController');
 
-// Search route - MUST be before /:id route
-router.get('/search', protect, searchMembers);
-
-// Member CRUD routes
+// ✅ All routes are protected
 router.post('/', protect, addMember);
 router.get('/family/:familyId', protect, getFamilyMembers);
+router.get('/search', protect, searchMembers);
 router.get('/:id', protect, getMember);
 router.put('/:id', protect, updateMember);
 router.delete('/:id', protect, deleteMember);
-router.post('/:id/deceased', protect, markDeceased);
+router.put('/:id/deceased', protect, markDeceased);
 
 module.exports = router;

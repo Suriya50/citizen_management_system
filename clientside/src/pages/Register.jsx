@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaUser, FaLock, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBuilding, FaCity } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaPhone, FaBuilding, FaCity } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 
@@ -84,8 +84,17 @@ const Register = () => {
       
       const { token, user } = response.data;
       
+      console.log('✅ Registration response:', { token, user });
+      console.log('✅ Village ID received:', user.villageId);
+      
+      // ✅ STORE ALL DATA including villageId
       localStorage.setItem('village_token', token);
       localStorage.setItem('village_user', JSON.stringify(user));
+      localStorage.setItem('villageId', user.villageId || '');
+      localStorage.setItem('village', user.village || '');
+      
+      // ✅ Set auth header
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       toast.success('Registration successful! Welcome!');
       navigate('/');

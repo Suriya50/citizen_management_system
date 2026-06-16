@@ -11,8 +11,12 @@ const FamilyDetails = () => {
   const [family, setFamily] = useState(null);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [villageName, setVillageName] = useState('');
 
   useEffect(() => {
+    // Get village name from localStorage
+    const village = localStorage.getItem('village') || '';
+    setVillageName(village);
     fetchFamilyDetails();
   }, [id]);
 
@@ -20,7 +24,9 @@ const FamilyDetails = () => {
     try {
       setLoading(true);
       console.log('Fetching family details for ID:', id);
+      console.log('📍 Village:', localStorage.getItem('village'));
       
+      // API interceptor automatically sends villageId in headers
       const [familyRes, membersRes] = await Promise.all([
         api.get(`/families/${id}`),
         api.get(`/members/family/${id}`)
@@ -93,6 +99,7 @@ const FamilyDetails = () => {
           <div class="header">
             <h2>Village Panchayat - Family Card</h2>
             <p>Government of Tamil Nadu</p>
+            <p><strong>Village:</strong> ${villageName || 'N/A'}</p>
           </div>
           <div class="family-info">
             <p><strong>Family ID:</strong> ${family?.familyId}</p>
@@ -167,7 +174,7 @@ const FamilyDetails = () => {
         <div className="lg:ml-64 pt-14">
           <div className="flex justify-center items-center h-screen">
             <div className="text-center">
-              <p className="text-gray-500">Family not found</p>
+              <p className="text-gray-500">Family not found in your village</p>
               <button onClick={() => navigate('/families')} className="mt-3 bg-green-600 text-white px-4 py-2 rounded-md text-sm">
                 Back to Families
               </button>
@@ -192,6 +199,7 @@ const FamilyDetails = () => {
               <div>
                 <h1 className="text-xl font-bold text-gray-800">{family.headOfFamily}'s Family</h1>
                 <p className="text-sm text-gray-500">Family ID: {family.familyId}</p>
+                {villageName && <p className="text-xs text-green-600">🏠 {villageName}</p>}
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -262,7 +270,7 @@ const FamilyDetails = () => {
             </div>
           </div>
 
-          {/* Members List Table - WITH AADHAR AND VOTER ID */}
+          {/* Members List Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="px-4 py-3 border-b bg-gray-50">
               <h2 className="text-lg font-bold text-gray-800">Family Members ({members.length})</h2>
@@ -288,16 +296,8 @@ const FamilyDetails = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Relation</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div className="flex items-center gap-1">
-                          <FaIdCard size={12} /> Aadhar
-                        </div>
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div className="flex items-center gap-1">
-                          <FaVoteYea size={12} /> Voter ID
-                        </div>
-                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aadhar</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voter ID</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>

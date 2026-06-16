@@ -16,17 +16,23 @@ const Families = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalFamilies, setTotalFamilies] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [villageName, setVillageName] = useState('');
 
   useEffect(() => {
+    // Get village name from localStorage
+    const village = localStorage.getItem('village') || '';
+    setVillageName(village);
     fetchFamilies();
   }, [currentPage, filterStatus, searchTerm]);
 
   const fetchFamilies = async () => {
     try {
       setLoading(true);
+      // API interceptor automatically sends villageId in headers
       const response = await api.get('/families', {
         params: { page: currentPage, limit: 10, search: searchTerm, status: filterStatus }
       });
+      console.log('📋 Families fetched:', response.data.families?.length || 0);
       setFamilies(response.data.families || []);
       setTotalPages(response.data.totalPages || 1);
       setTotalFamilies(response.data.total || 0);
@@ -112,6 +118,7 @@ const Families = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
             <h1 className="text-sm font-semibold text-gray-800">Families</h1>
+            {villageName && <span className="text-xs text-green-600 ml-2">🏠 {villageName}</span>}
           </div>
         </nav>
 
@@ -141,7 +148,10 @@ const Families = () => {
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700"></div></div>
           ) : families.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-12 text-center"><p className="text-gray-500">No families found</p></div>
+            <div className="bg-white rounded-lg shadow p-12 text-center">
+              <p className="text-gray-500">No families found in your village</p>
+              <Link to="/families/add" className="inline-block mt-3 bg-green-600 text-white px-4 py-2 rounded-md text-sm">Add First Family</Link>
+            </div>
           ) : (
             <div className="space-y-3">
               {families.map((family) => (

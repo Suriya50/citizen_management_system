@@ -13,14 +13,20 @@ const Dashboard = ({ toggleSidebar }) => {
     maleCount: 0, femaleCount: 0, childrenCount: 0, seniorCount: 0
   });
   const [loading, setLoading] = useState(true);
+  const [villageName, setVillageName] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
+    // Get village name from localStorage
+    const village = localStorage.getItem('village') || user?.village || '';
+    setVillageName(village);
   }, []);
 
   const fetchDashboardData = async () => {
     try {
+      // API interceptor automatically sends villageId in headers
       const response = await api.get('/dashboard/stats');
+      console.log('📊 Dashboard stats:', response.data);
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -63,7 +69,10 @@ const Dashboard = ({ toggleSidebar }) => {
         <main className="p-4">
           <div className="mb-5">
             <h1 className="text-xl font-bold text-gray-800">Welcome, {user?.name?.split(' ')[0] || 'Officer'}!</h1>
-            <p className="text-sm text-gray-500">Village Panchayat Dashboard</p>
+            <p className="text-sm text-gray-500">
+              Village Panchayat Dashboard 
+              {villageName && <span className="text-green-600 font-medium"> - {villageName}</span>}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">

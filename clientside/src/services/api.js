@@ -8,13 +8,27 @@ const api = axios.create({
   timeout: 30000,
 });
 
-// Request interceptor - Add token
+// Request interceptor - Add token and villageId
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('village_token');
+    const villageId = localStorage.getItem('villageId');
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // ✅ ADD villageId to headers for ALL requests
+    if (villageId) {
+      config.headers['X-Village-Id'] = villageId;
+    }
+    
+    console.log('📤 API Request:', {
+      url: config.url,
+      method: config.method,
+      villageId: villageId || 'Not set'
+    });
+    
     return config;
   },
   (error) => Promise.reject(error)
@@ -22,11 +36,19 @@ api.interceptors.request.use(
 
 // Response interceptor - Handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('📥 API Response:', {
+      url: response.config.url,
+      status: response.status
+    });
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('village_token');
       localStorage.removeItem('village_user');
+      localStorage.removeItem('villageId');
+      localStorage.removeItem('village');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

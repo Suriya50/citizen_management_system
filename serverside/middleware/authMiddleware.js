@@ -8,21 +8,45 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id).select('-password');
+      const user = await User.findById(decoded.id).select('-password');
       
-      if (!req.user) {
+      if (!user) {
         return res.status(401).json({ success: false, message: 'User not found' });
       }
       
+      // ✅ Attach user with villageId to req.user
+      req.user = {
+        id: user._id,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+        villageId: user.villageId,  // ✅ CRITICAL: Village isolation
+        village: user.village,
+        district: user.district
+      };
+      
+      console.log('✅ Auth middleware - User attached:', {
+        id: req.user.id,
+        username: req.user.username,
+        villageId: req.user.villageId,
+        village: req.user.village
+      });
+      
       next();
     } catch (error) {
-      console.error('Token error:', error.message);
-      return res.status(401).json({ success: false, message: 'Not authorized' });
+      console.error('❌ Token error:', error.message);
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Not authorized' 
+      });
     }
   }
   
   if (!token) {
-    return res.status(401).json({ success: false, message: 'No token provided' });
+    return res.status(401).json({ 
+      success: false, 
+      message: 'No token provided' 
+    });
   }
 };
 
