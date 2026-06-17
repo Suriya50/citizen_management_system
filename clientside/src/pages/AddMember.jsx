@@ -82,7 +82,7 @@ const AddMember = () => {
     setSubmitting(true);
     
     try {
-      // Prepare data to send - INCLUDING Aadhar and Voter ID
+      // ✅ Prepare data (NO villageId)
       const memberData = {
         familyId: familyId,
         name: member.name.trim(),
@@ -99,39 +99,30 @@ const AddMember = () => {
         disabilities: member.disabilities
       };
       
-      console.log('Sending member data:', memberData);
+      console.log('📤 Sending member data:', memberData);
       
       const response = await api.post('/members', memberData);
-      console.log('Response:', response.data);
+      console.log('✅ Response:', response.data);
       
       toast.success('Member added successfully!');
       
-      // Reset form for next member
+      // ✅ ONLY RESET NAME AND AGE (keep other fields)
       setMember({
+        ...member,
         name: '',
-        age: '',
-        gender: 'Male',
-        relationToHead: '',
-        aadharNumber: '',
-        voterId: '',
-        mobileNumber: '',
-        occupation: 'Other',
-        education: 'Other',
-        bloodGroup: '',
-        maritalStatus: 'Single',
-        disabilities: 'None'
+        age: ''
       });
       
       // Focus back on name input
       document.getElementById('member-name')?.focus();
       
-      // Refresh family data to update member count
+      // Refresh family data
       const familyRes = await api.get(`/families/${familyId}`);
       setFamily(familyRes.data.data);
       
     } catch (error) {
-      console.error('Error:', error);
-      console.error('Error response:', error.response?.data);
+      console.error('❌ Error:', error);
+      console.error('❌ Error response:', error.response?.data);
       
       const message = error.response?.data?.message || 'Failed to add member';
       toast.error(message);

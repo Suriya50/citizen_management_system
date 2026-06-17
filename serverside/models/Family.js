@@ -3,9 +3,6 @@ const mongoose = require('mongoose');
 const familySchema = new mongoose.Schema({
   familyId: { type: String, required: true, unique: true },
   
-  // ✅ ADD THIS - Village isolation field
-  villageId: { type: String, required: true, index: true },
-  
   headOfFamily: { type: String, required: true },
   address: {
     street: { type: String, required: true },
@@ -20,9 +17,6 @@ const familySchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
   isDeleted: { type: Boolean, default: false }
 });
-
-// ✅ Add compound index for villageId + familyId
-familySchema.index({ villageId: 1, familyId: 1 }, { unique: true });
 
 familySchema.pre('save', function(next) { this.updatedAt = Date.now(); next(); });
 

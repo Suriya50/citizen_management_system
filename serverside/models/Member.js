@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 
 const memberSchema = new mongoose.Schema({
-  citizenId: { type: String, required: true },  // ✅ REMOVED unique: true
+  citizenId: { type: String, required: true },
   familyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Family', required: true },
+  
   name: { type: String, required: true, trim: true },
   age: { type: Number, required: true },
   gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
   relationToHead: { type: String, required: true },
-  aadharNumber: { type: String, default: null, unique: true, sparse: true },  // ✅ Keep unique
-  voterId: { type: String, default: null, unique: true, sparse: true },  // ✅ Keep unique
+  aadharNumber: { type: String, default: null, unique: true, sparse: true },
+  voterId: { type: String, default: null, unique: true, sparse: true },
   mobileNumber: { type: String, default: null },
   occupation: { type: String, default: 'Other' },
   education: { type: String, default: 'Other' },
@@ -23,7 +24,7 @@ const memberSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false }
 });
 
-// ✅ ADD THIS LINE - Critical fix!
+// ✅ Index - citizenId per family
 memberSchema.index({ familyId: 1, citizenId: 1 }, { unique: true });
 
 memberSchema.pre('save', function(next) { 
