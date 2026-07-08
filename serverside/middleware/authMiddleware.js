@@ -14,18 +14,18 @@ const protect = async (req, res, next) => {
         return res.status(401).json({ success: false, message: 'User not found' });
       }
       
-      // ✅ Attach user with villageId to req.user
+      // ✅ Attach user with villageId
       req.user = {
         id: user._id,
         username: user.username,
         name: user.name,
         role: user.role,
-        villageId: user.villageId,  // ✅ CRITICAL: Village isolation
+        villageId: user.villageId,
         village: user.village,
         district: user.district
       };
       
-      console.log('✅ Auth middleware - User attached:', {
+      console.log('✅ Auth - User attached:', {
         id: req.user.id,
         username: req.user.username,
         villageId: req.user.villageId,

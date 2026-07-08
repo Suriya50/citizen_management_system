@@ -4,7 +4,6 @@ const Member = require('../models/Member');
 // Generate unique family ID PER VILLAGE
 const generateFamilyId = async (villageId) => {
   try {
-    // Get families ONLY in this village
     const allFamilies = await Family.find({ 
       villageId: villageId,
       isDeleted: false 
@@ -16,7 +15,6 @@ const generateFamilyId = async (villageId) => {
       return 'FAM-0001';
     }
     
-    // Find the maximum number from existing family IDs in THIS village
     let maxNumber = 0;
     for (const family of allFamilies) {
       if (family.familyId) {
@@ -46,13 +44,11 @@ const createFamily = async (req, res) => {
   try {
     const { headOfFamily, address, bplCardNumber, economicStatus } = req.body;
     
-    // ✅ Get villageId from authenticated user
     const villageId = req.user.villageId;
     const createdBy = req.user.id;
     
     console.log('📝 Creating new family for village:', villageId);
     
-    // Validation
     if (!headOfFamily || !headOfFamily.trim()) {
       return res.status(400).json({ success: false, message: 'Head of family is required' });
     }
@@ -60,14 +56,12 @@ const createFamily = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Street address is required' });
     }
     
-    // Generate unique family ID based on THIS VILLAGE's existing data
     const familyId = await generateFamilyId(villageId);
     console.log('📌 Generated Family ID:', familyId);
     
-    // Create family with villageId
     const family = await Family.create({
       familyId,
-      villageId,  // ✅ CRITICAL: Save villageId
+      villageId,
       headOfFamily: headOfFamily.trim(),
       address: {
         street: address.street.trim(),
@@ -86,7 +80,6 @@ const createFamily = async (req, res) => {
     console.error('❌ Error creating family:', error);
     
     if (error.code === 11000) {
-      // Check if it's duplicate bplCardNumber
       if (error.keyPattern?.bplCardNumber) {
         return res.status(400).json({ 
           success: false, 
@@ -94,7 +87,6 @@ const createFamily = async (req, res) => {
         });
       }
       
-      // If duplicate familyId (rare), retry once
       try {
         const villageId = req.user.villageId;
         const newId = `FAM-${Date.now()}`;
@@ -132,11 +124,10 @@ const getFamilies = async (req, res) => {
     const search = req.query.search || '';
     const status = req.query.status || 'all';
     
-    // ✅ Filter by villageId from logged-in user
     const villageId = req.user.villageId;
     
     let query = { 
-      villageId: villageId,  // ✅ CRITICAL: Only show families from this village
+      villageId: villageId,
       isDeleted: false 
     };
     
@@ -179,7 +170,7 @@ const getFamily = async (req, res) => {
     
     const family = await Family.findOne({ 
       _id: req.params.id, 
-      villageId: villageId,  // ✅ Ensure family belongs to this village
+      villageId: villageId,
       isDeleted: false 
     });
     
@@ -199,7 +190,6 @@ const updateFamily = async (req, res) => {
   try {
     const villageId = req.user.villageId;
     
-    // First check if family exists and belongs to this village
     const existingFamily = await Family.findOne({ 
       _id: req.params.id, 
       villageId: villageId,
@@ -236,7 +226,6 @@ const deleteFamily = async (req, res) => {
   try {
     const villageId = req.user.villageId;
     
-    // First check if family exists and belongs to this village
     const family = await Family.findOne({ 
       _id: req.params.id, 
       villageId: villageId,
@@ -247,11 +236,9 @@ const deleteFamily = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Family not found in your village' });
     }
     
-    // Soft delete family
     family.isDeleted = true;
     await family.save();
     
-    // Soft delete all members of this family in this village
     await Member.updateMany(
       { familyId: req.params.id, villageId: villageId }, 
       { isDeleted: true }
@@ -271,7 +258,7 @@ const getRecentFamilies = async (req, res) => {
     const villageId = req.user.villageId;
     
     const families = await Family.find({ 
-      villageId: villageId,  // ✅ Only this village
+      villageId: villageId,
       isDeleted: false 
     })
       .sort({ createdAt: -1 })

@@ -82,9 +82,25 @@ const AddMember = () => {
     setSubmitting(true);
     
     try {
-      // ✅ Prepare data (NO villageId)
+      // ✅ Get villageId from localStorage
+      let villageId = localStorage.getItem('villageId');
+      if (!villageId) {
+        const userData = JSON.parse(localStorage.getItem('village_user') || '{}');
+        villageId = userData.villageId;
+      }
+      
+      if (!villageId) {
+        toast.error('Village ID not found. Please login again.');
+        setSubmitting(false);
+        return;
+      }
+      
+      console.log('📍 Village ID:', villageId);
+      
+      // ✅ Prepare data with villageId
       const memberData = {
         familyId: familyId,
+        villageId: villageId,
         name: member.name.trim(),
         age: parseInt(member.age),
         gender: member.gender,
@@ -106,7 +122,7 @@ const AddMember = () => {
       
       toast.success('Member added successfully!');
       
-      // ✅ ONLY RESET NAME AND AGE (keep other fields)
+      // ✅ ONLY RESET NAME AND AGE
       setMember({
         ...member,
         name: '',

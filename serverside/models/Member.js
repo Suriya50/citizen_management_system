@@ -4,6 +4,9 @@ const memberSchema = new mongoose.Schema({
   citizenId: { type: String, required: true },
   familyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Family', required: true },
   
+  // ✅ Village isolation field
+  villageId: { type: String, required: true, index: true },
+  
   name: { type: String, required: true, trim: true },
   age: { type: Number, required: true },
   gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
@@ -24,8 +27,11 @@ const memberSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false }
 });
 
-// ✅ Index - citizenId per family
+// Indexes
 memberSchema.index({ familyId: 1, citizenId: 1 }, { unique: true });
+memberSchema.index({ villageId: 1 });
+memberSchema.index({ name: 1 });
+memberSchema.index({ mobileNumber: 1 });
 
 memberSchema.pre('save', function(next) { 
   this.updatedAt = Date.now(); 

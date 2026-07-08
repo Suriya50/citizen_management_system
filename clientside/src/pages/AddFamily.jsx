@@ -35,7 +35,22 @@ const AddFamily = () => {
     setSubmitting(true);
     
     try {
-      // Send data exactly as backend expects
+      // ✅ Get villageId from localStorage
+      let villageId = localStorage.getItem('villageId');
+      if (!villageId) {
+        const userData = JSON.parse(localStorage.getItem('village_user') || '{}');
+        villageId = userData.villageId;
+      }
+      
+      if (!villageId) {
+        toast.error('Village ID not found. Please login again.');
+        setSubmitting(false);
+        return;
+      }
+      
+      console.log('📍 Village ID:', villageId);
+      
+      // ✅ Send data with villageId
       const dataToSend = {
         headOfFamily: familyData.headOfFamily.trim(),
         address: {
@@ -44,7 +59,8 @@ const AddFamily = () => {
           pincode: familyData.address.pincode?.trim() || ''
         },
         bplCardNumber: familyData.bplCardNumber?.trim() || '',
-        economicStatus: familyData.economicStatus
+        economicStatus: familyData.economicStatus,
+        villageId: villageId
       };
       
       console.log('Sending data:', dataToSend);

@@ -7,8 +7,12 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   role: { type: String, enum: ['admin', 'officer', 'viewer'], default: 'officer' },
   
+  // ✅ Village isolation fields
+  villageId: { type: String, unique: true, sparse: true },
+  village: { type: String, required: true },
   district: { type: String, required: true },
   taluk: { type: String },
+  pincode: { type: String },
   
   employeeId: { type: String, unique: true, sparse: true },
   mobileNumber: { type: String, required: true, unique: true },
@@ -16,6 +20,14 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date }
+});
+
+// Generate villageId BEFORE validation
+userSchema.pre('validate', function(next) {
+  if (!this.villageId && this.village) {
+    this.villageId = this.village.toLowerCase().replace(/ /g, '_') + '_' + Date.now();
+  }
+  next();
 });
 
 // Hash password

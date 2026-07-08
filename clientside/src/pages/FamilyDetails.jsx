@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { FaArrowLeft, FaEdit, FaTrash, FaUserPlus, FaPrint, FaMale, FaFemale, FaChild, FaUser, FaIdCard, FaVoteYea } from 'react-icons/fa';
+import { FaArrowLeft, FaEdit, FaTrash, FaUserPlus, FaPrint, FaMale, FaFemale, FaChild, FaUser, FaIdCard, FaVoteYea, FaSearch } from 'react-icons/fa';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -12,11 +12,20 @@ const FamilyDetails = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [villageName, setVillageName] = useState('');
+  const [highlightedMember, setHighlightedMember] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Get village name from localStorage
     const village = localStorage.getItem('village') || '';
     setVillageName(village);
+    
+    // Check for highlight param from search
+    const params = new URLSearchParams(window.location.search);
+    const highlight = params.get('highlight');
+    if (highlight) {
+      setSearchQuery(highlight);
+    }
+    
     fetchFamilyDetails();
   }, [id]);
 
@@ -24,9 +33,7 @@ const FamilyDetails = () => {
     try {
       setLoading(true);
       console.log('Fetching family details for ID:', id);
-      console.log('📍 Village:', localStorage.getItem('village'));
       
-      // API interceptor automatically sends villageId in headers
       const [familyRes, membersRes] = await Promise.all([
         api.get(`/families/${id}`),
         api.get(`/members/family/${id}`)
@@ -34,10 +41,23 @@ const FamilyDetails = () => {
       
       console.log('Family data:', familyRes.data.data);
       console.log('Members data:', membersRes.data);
-      console.log(`Total members found: ${membersRes.data.length}`);
       
       setFamily(familyRes.data.data);
       setMembers(membersRes.data);
+      
+      // Highlight member if search query exists
+      if (searchQuery && membersRes.data.length > 0) {
+        const found = membersRes.data.find(m => 
+          m.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        if (found) {
+          setHighlightedMember(found._id);
+          setTimeout(() => {
+            const el = document.getElementById(`member-${found._id}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 500);
+        }
+      }
       
     } catch (error) {
       console.error('Error fetching family details:', error);
@@ -46,6 +66,14 @@ const FamilyDetails = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const highlightMatch = (text) => {
+    if (!searchQuery || !text) return text;
+    const regex = new RegExp(`(${searchQuery})`, 'gi');
+    return text.split(regex).map((part, i) => 
+      regex.test(part) ? <span key={i} className="bg-yellow-300 font-bold px-0.5 rounded">{part}</span> : part
+    );
   };
 
   const handleDeleteMember = async (memberId, name, e) => {
@@ -92,6 +120,7 @@ const FamilyDetails = () => {
             table{width:100%;border-collapse:collapse;margin-top:10px}
             th,td{border:1px solid #ddd;padding:8px;text-align:left}
             th{background:#f2f2f2}
+            .highlight{background:#ffeb3b;font-weight:bold}
             .footer{margin-top:20px;text-align:center;font-size:12px}
           </style>
         </head>
@@ -147,7 +176,6 @@ const FamilyDetails = () => {
     win.print();
   };
 
-  // Calculate statistics
   const maleCount = members.filter(m => m.gender === 'Male' && m.isAlive !== false).length;
   const femaleCount = members.filter(m => m.gender === 'Female' && m.isAlive !== false).length;
   const childrenCount = members.filter(m => m.age < 18 && m.isAlive !== false).length;
@@ -200,6 +228,11 @@ const FamilyDetails = () => {
                 <h1 className="text-xl font-bold text-gray-800">{family.headOfFamily}'s Family</h1>
                 <p className="text-sm text-gray-500">Family ID: {family.familyId}</p>
                 {villageName && <p className="text-xs text-green-600">🏠 {villageName}</p>}
+                {searchQuery && (
+                  <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1">
+                    <FaSearch size={10} /> Highlighting: <strong>"{searchQuery}"</strong>
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -272,8 +305,13 @@ const FamilyDetails = () => {
 
           {/* Members List Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-3 border-b bg-gray-50">
+            <div className="px-4 py-3 border-b bg-gray-50 flex justify-between items-center">
               <h2 className="text-lg font-bold text-gray-800">Family Members ({members.length})</h2>
+              {searchQuery && (
+                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full flex items-center gap-1">
+                  <FaSearch size={10} /> Matches: <strong>"{searchQuery}"</strong>
+                </span>
+              )}
             </div>
             
             {members.length === 0 ? (
@@ -303,54 +341,61 @@ const FamilyDetails = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {members.map((member, index) => (
-                      <tr 
-                        key={member._id} 
-                        onClick={() => handleMemberClick(member._id)}
-                        className="hover:bg-gray-50 cursor-pointer transition"
-                      >
-                        <td className="px-4 py-3 text-sm text-gray-500">{index + 1}</td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">{member.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{member.age}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{member.gender}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{member.relationToHead}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {member.aadharNumber ? (
-                            <span className="font-mono text-xs">{member.aadharNumber}</span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {member.voterId ? (
-                            <span className="font-mono text-xs">{member.voterId}</span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {member.mobileNumber || '-'}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Link 
-                              to={`/members/edit/${member._id}`} 
-                              className="text-green-600 hover:text-green-800"
-                              title="Edit Member"
-                            >
-                              <FaEdit size={14} />
-                            </Link>
-                            <button 
-                              onClick={(e) => handleDeleteMember(member._id, member.name, e)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Remove Member"
-                            >
-                              <FaTrash size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {members.map((member, index) => {
+                      const isHighlighted = highlightedMember === member._id;
+                      return (
+                        <tr 
+                          key={member._id} 
+                          id={`member-${member._id}`}
+                          onClick={() => handleMemberClick(member._id)}
+                          className={`hover:bg-gray-50 cursor-pointer transition ${isHighlighted ? 'bg-yellow-50 border-l-4 border-yellow-500' : ''}`}
+                        >
+                          <td className="px-4 py-3 text-sm text-gray-500">{index + 1}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                            {searchQuery ? highlightMatch(member.name) : member.name}
+                            {isHighlighted && <span className="ml-2 text-xs bg-yellow-300 text-yellow-800 px-1 py-0.5 rounded">Match</span>}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">{member.age}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500">{member.gender}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500">{member.relationToHead}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {member.aadharNumber ? (
+                              <span className="font-mono text-xs">{member.aadharNumber}</span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {member.voterId ? (
+                              <span className="font-mono text-xs">{member.voterId}</span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {member.mobileNumber || '-'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                              <Link 
+                                to={`/members/edit/${member._id}`} 
+                                className="text-green-600 hover:text-green-800"
+                                title="Edit Member"
+                              >
+                                <FaEdit size={14} />
+                              </Link>
+                              <button 
+                                onClick={(e) => handleDeleteMember(member._id, member.name, e)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Remove Member"
+                              >
+                                <FaTrash size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

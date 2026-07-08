@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         setUser(parsedUser);
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
-        // ✅ Store villageId if not already there
+        // Store villageId if not already there
         if (parsedUser.villageId && !villageId) {
           localStorage.setItem('villageId', parsedUser.villageId);
           localStorage.setItem('village', parsedUser.village || '');
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       console.log('✅ User data:', userData);
       console.log('✅ Village ID:', userData.villageId);
       
-      // ✅ Store ALL data including villageId
+      // Store ALL data including villageId
       localStorage.setItem('village_token', token);
       localStorage.setItem('village_user', JSON.stringify(userData));
       localStorage.setItem('villageId', userData.villageId || '');

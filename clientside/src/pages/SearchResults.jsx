@@ -25,19 +25,16 @@ const SearchResults = () => {
       setLoading(true);
       console.log('🔍 Searching for:', query);
       
-      // Search families by head name or family ID
       const familiesRes = await api.get('/families', {
         params: { search: query, limit: 50 }
       });
       
-      // Search members by name, mobile, citizenId
       const membersRes = await api.get('/members/search', {
         params: { q: query }
       }).catch(() => ({ data: [] }));
       
       console.log('📊 Families found:', familiesRes.data.families?.length || 0);
       console.log('📊 Members found:', membersRes.data?.length || 0);
-      console.log('Members details:', membersRes.data);
       
       setFamilies(familiesRes.data.families || []);
       setMembers(membersRes.data || []);
@@ -53,8 +50,15 @@ const SearchResults = () => {
     navigate(`/families/${familyId}`);
   };
 
-  const handleMemberClick = (memberId) => {
-    navigate(`/members/${memberId}`);
+  const handleMemberClick = (memberId, memberName) => {
+    // Navigate to family with highlight parameter
+    const member = members.find(m => m._id === memberId);
+    if (member && member.familyId) {
+      const familyId = member.familyId._id || member.familyId;
+      navigate(`/families/${familyId}?highlight=${encodeURIComponent(memberName)}`);
+    } else {
+      navigate(`/members/${memberId}`);
+    }
   };
 
   const highlightText = (text) => {
@@ -88,7 +92,6 @@ const SearchResults = () => {
       <Navbar />
       <div className="lg:ml-64 pt-14">
         <main className="p-4 max-w-4xl mx-auto">
-          {/* Header */}
           <div className="flex items-center gap-3 mb-4">
             <button onClick={() => navigate(-1)} className="text-gray-600 hover:text-gray-800">
               <FaArrowLeft size={20} />
@@ -101,7 +104,6 @@ const SearchResults = () => {
             </div>
           </div>
 
-          {/* Search Info Box */}
           <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded">
             <p className="text-sm text-blue-700 flex items-center gap-2">
               <FaSearch className="text-blue-500" />
@@ -112,7 +114,6 @@ const SearchResults = () => {
             </p>
           </div>
 
-          {/* Tabs */}
           <div className="flex gap-3 mb-4 border-b">
             <button
               onClick={() => setActiveTab('all')}
@@ -146,7 +147,6 @@ const SearchResults = () => {
             </button>
           </div>
 
-          {/* No Results */}
           {totalCount === 0 && (
             <div className="bg-white rounded-lg shadow p-10 text-center">
               <div className="text-6xl mb-3">🔍</div>
@@ -155,10 +155,8 @@ const SearchResults = () => {
             </div>
           )}
 
-          {/* Results */}
           {totalCount > 0 && (
             <div className="space-y-4">
-              {/* Family Results */}
               {activeTab !== 'members' && families.map((family) => (
                 <div
                   key={family._id}
@@ -192,9 +190,7 @@ const SearchResults = () => {
                 </div>
               ))}
 
-              {/* Member Results - INDIVIDUAL MEMBERS */}
               {activeTab !== 'families' && members.map((member) => {
-                // Get family info for display
                 const familyInfo = member.familyId || {};
                 const familyName = familyInfo.headOfFamily || 'Unknown Family';
                 const familyIdDisplay = familyInfo.familyId || 'N/A';
@@ -202,18 +198,16 @@ const SearchResults = () => {
                 return (
                   <div
                     key={member._id}
-                    onClick={() => handleMemberClick(member._id)}
+                    onClick={() => handleMemberClick(member._id, member.name)}
                     className="bg-white rounded-lg shadow p-4 hover:shadow-md cursor-pointer transition border-l-4 border-purple-500"
                   >
                     <div className="flex gap-4">
-                      {/* Avatar */}
                       <div className="w-12 h-12 flex-shrink-0">
                         <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                           <FaUserCircle className="text-purple-600 text-2xl" />
                         </div>
                       </div>
 
-                      {/* Member Details */}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <p className="text-lg font-bold text-gray-800">
@@ -230,7 +224,6 @@ const SearchResults = () => {
                           {member.age} years | {member.gender} | {member.relationToHead}
                         </p>
 
-                        {/* Mobile Number */}
                         {member.mobileNumber && (
                           <div className="mt-2 flex items-center gap-1 text-sm text-gray-600">
                             <FaPhone size={12} className="text-gray-400" />
@@ -238,7 +231,6 @@ const SearchResults = () => {
                           </div>
                         )}
 
-                        {/* Family Info */}
                         <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
                           <FaHome size={10} className="text-gray-400" />
                           <span>Family: {highlightText(familyName)}</span>
@@ -247,7 +239,6 @@ const SearchResults = () => {
                         </div>
                       </div>
                       
-                      {/* Arrow Indicator */}
                       <div className="text-gray-400 self-center">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -260,10 +251,9 @@ const SearchResults = () => {
             </div>
           )}
           
-          {/* Tip for better search */}
           {totalCount > 0 && (
             <div className="mt-6 p-3 bg-gray-100 rounded-md text-center text-sm text-gray-600">
-              💡 <strong>Tip:</strong> Click on any member card to view complete details including Aadhar, Voter ID, and more!
+              💡 <strong>Tip:</strong> Click on any member card to go directly to their family with the member highlighted!
             </div>
           )}
         </main>

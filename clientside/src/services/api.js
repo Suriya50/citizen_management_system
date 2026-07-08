@@ -18,7 +18,6 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // ✅ ADD villageId to headers for ALL requests
     if (villageId) {
       config.headers['X-Village-Id'] = villageId;
     }
